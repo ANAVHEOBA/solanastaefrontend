@@ -1,0 +1,222 @@
+"use client";
+
+import { useQuery } from '@tanstack/react-query';
+import { NetworkHealth, NetworkStats, ValidatorStats, BlockProduction, ClusterNodesResponse, LeaderSchedule, PrioritizationFees, Supply, Inflation, PerformanceSamplesResponse, AccountFeesResponse, SolscanAccountResponse, SolscanTransactionsResponse, PortfolioResponse, TokenAccountsResponse, TransferResponse, DeFiActivitiesResponse, TokenMetadataResponse, TokenPriceHistoryResponse } from '@/types/network';
+import { fetchBlockProduction, fetchClusterNodes, fetchValidatorStats, fetchLeaderSchedule, fetchPrioritizationFees, fetchSupply, fetchInflation, fetchPerformanceSamples, fetchAccountFees, fetchSolscanAccount, fetchSolscanTransactions, fetchSolscanPortfolio, fetchSolscanTokenAccounts, fetchSolscanTransfers, fetchSolscanDeFiActivities, fetchTokenMetadata, fetchTokenPriceHistory } from '@/services/networkData';
+import { API_ENDPOINTS } from '@/lib/constants/endpoints';
+
+export const useNetworkData = () => {
+  const healthQuery = useQuery({
+    queryKey: ['networkHealth'],
+    queryFn: () => fetch(API_ENDPOINTS.NETWORK.HEALTH).then(res => res.json()),
+    refetchInterval: 300000, // 5 minutes
+  });
+
+  const networkStatsQuery = useQuery({
+    queryKey: ['networkStats'],
+    queryFn: () => fetch(API_ENDPOINTS.NETWORK.STATS).then(res => res.json()),
+    refetchInterval: 300000,
+  });
+
+  const validatorStatsQuery = useQuery({
+    queryKey: ['validatorStats'],
+    queryFn: fetchValidatorStats,
+    refetchInterval: 300000,
+  });
+
+  const blockProductionQuery = useQuery({
+    queryKey: ['blockProduction'],
+    queryFn: fetchBlockProduction,
+    refetchInterval: 300000,
+  });
+
+  const clusterNodesQuery = useQuery({
+    queryKey: ['clusterNodes'],
+    queryFn: fetchClusterNodes,
+    refetchInterval: 300000,
+  });
+
+  const leaderScheduleQuery = useQuery({
+    queryKey: ['leaderSchedule'],
+    queryFn: () => fetchLeaderSchedule(),
+    refetchInterval: 300000,
+  });
+
+  const prioritizationFeesQuery = useQuery({
+    queryKey: ['prioritizationFees'],
+    queryFn: () => fetchPrioritizationFees(),
+    refetchInterval: 300000,
+  });
+
+  const supplyQuery = useQuery({
+    queryKey: ['supply'],
+    queryFn: () => fetchSupply(),
+    refetchInterval: 300000,
+  });
+
+  const inflationQuery = useQuery({
+    queryKey: ['inflation'],
+    queryFn: fetchInflation,
+    refetchInterval: 300000,
+  });
+
+  return {
+    health: healthQuery.data,
+    networkStats: networkStatsQuery.data,
+    validatorStats: validatorStatsQuery.data,
+    blockProduction: blockProductionQuery.data,
+    clusterNodes: clusterNodesQuery.data,
+    leaderSchedule: leaderScheduleQuery.data,
+    prioritizationFees: prioritizationFeesQuery.data,
+    supply: supplyQuery.data,
+    inflation: inflationQuery.data,
+    loading: healthQuery.isLoading || networkStatsQuery.isLoading || validatorStatsQuery.isLoading || blockProductionQuery.isLoading || clusterNodesQuery.isLoading || leaderScheduleQuery.isLoading || prioritizationFeesQuery.isLoading || supplyQuery.isLoading || inflationQuery.isLoading,
+    error: healthQuery.error || networkStatsQuery.error || validatorStatsQuery.error || blockProductionQuery.error || clusterNodesQuery.error || leaderScheduleQuery.error || prioritizationFeesQuery.error || supplyQuery.error || inflationQuery.error,
+  };
+};
+
+export const usePerformanceSamples = (page: number = 1, limit: number = 10) => {
+  return useQuery({
+    queryKey: ['performanceSamples', page, limit],
+    queryFn: () => fetchPerformanceSamples(page, limit),
+    refetchInterval: 10000, // Refetch every 10 seconds
+    select: (data: PerformanceSamplesResponse) => {
+      if (!data || !data.result) return [];
+      return data.result;
+    },
+  });
+};
+
+export const useAccountFees = (address: string, from: string, to: string) => {
+  return useQuery({
+    queryKey: ['accountFees', address, from, to],
+    queryFn: () => fetchAccountFees(address, from, to),
+    refetchInterval: 300000, // 5 minutes
+    select: (data: AccountFeesResponse) => {
+      if (!data || !data.data) return [];
+      return data.data;
+    },
+  });
+};
+
+export const useSolscanAccount = (address: string) => {
+  return useQuery({
+    queryKey: ['solscanAccount', address],
+    queryFn: () => fetchSolscanAccount(address),
+    refetchInterval: 300000, // 5 minutes
+    select: (data: SolscanAccountResponse) => {
+      if (!data || !data.success) return null;
+      return data.data;
+    },
+  });
+};
+
+export const useSolscanTransactions = (address: string, limit: number = 10) => {
+  return useQuery({
+    queryKey: ['solscanTransactions', address, limit],
+    queryFn: () => fetchSolscanTransactions(address, limit),
+    refetchInterval: 300000, // 5 minutes
+    select: (data: SolscanTransactionsResponse) => {
+      if (!data || !data.success) return [];
+      return data.data;
+    },
+  });
+};
+
+export const useSolscanPortfolio = (address: string) => {
+  return useQuery({
+    queryKey: ['solscanPortfolio', address],
+    queryFn: () => fetchSolscanPortfolio(address),
+    refetchInterval: 300000, // 5 minutes
+    select: (data: PortfolioResponse) => {
+      if (!data || !data.success) return null;
+      return data.data;
+    },
+  });
+};
+
+export const useSolscanTokenAccounts = (
+  address: string,
+  page: number = 1,
+  pageSize: number = 10,
+  hideZero: boolean = true
+) => {
+  return useQuery({
+    queryKey: ['solscanTokenAccounts', address, page, pageSize, hideZero],
+    queryFn: () => fetchSolscanTokenAccounts(address, page, pageSize, hideZero),
+    refetchInterval: 300000, // 5 minutes
+    select: (data: TokenAccountsResponse) => {
+      if (!data || !data.success) return null;
+      return {
+        accounts: data.data,
+        metadata: data.metadata.tokens,
+      };
+    },
+  });
+};
+
+export const useSolscanTransfers = (
+  address: string,
+  page: number = 1,
+  pageSize: number = 10,
+  sortBy: string = 'block_time',
+  sortOrder: string = 'desc'
+) => {
+  return useQuery({
+    queryKey: ['solscanTransfers', address, page, pageSize, sortBy, sortOrder],
+    queryFn: () => fetchSolscanTransfers(address, page, pageSize, sortBy, sortOrder),
+    refetchInterval: 300000, // 5 minutes
+    select: (data: TransferResponse) => {
+      if (!data || !data.success) return null;
+      return {
+        transfers: data.data,
+        metadata: data.metadata.tokens,
+      };
+    },
+  });
+};
+
+export const useSolscanDeFiActivities = (
+  address: string,
+  page: number = 1,
+  pageSize: number = 10,
+  sortBy: string = 'block_time',
+  sortOrder: string = 'desc'
+) => {
+  return useQuery({
+    queryKey: ['solscanDeFiActivities', address, page, pageSize, sortBy, sortOrder],
+    queryFn: () => fetchSolscanDeFiActivities(address, page, pageSize, sortBy, sortOrder),
+    refetchInterval: 300000, // 5 minutes
+    select: (data: DeFiActivitiesResponse) => {
+      if (!data || !data.success) return null;
+      return {
+        activities: data.data,
+        metadata: data.metadata.tokens,
+      };
+    },
+  });
+};
+
+export const useTokenMetadata = (address: string) => {
+  return useQuery({
+    queryKey: ['tokenMetadata', address],
+    queryFn: () => fetchTokenMetadata(address),
+    refetchInterval: 300000, // 5 minutes
+    select: (data: TokenMetadataResponse) => {
+      if (!data || !data.success) return null;
+      return data.data[0]; // Return the first token metadata since we're querying a single address
+    },
+  });
+};
+
+export const useTokenPriceHistory = (address: string) => {
+  return useQuery({
+    queryKey: ['tokenPriceHistory', address],
+    queryFn: () => fetchTokenPriceHistory(address),
+    refetchInterval: 300000, // 5 minutes
+    select: (data: TokenPriceHistoryResponse) => {
+      if (!data || !data.success) return null;
+      return data.data[0]; // Return the first token price history since we're querying a single address
+    },
+  });
+}; 
