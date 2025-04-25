@@ -27,17 +27,17 @@ export const ValidatorStatsCard = ({ stats, isLoading }: ValidatorStatsCardProps
           <div className="space-y-4">
             <StatItem
               label="Total Validators"
-              value={formatNumber(stats?.result.totalValidators)}
+              value={formatNumber(stats?.result.totalValidators ?? 0)}
               isLoading={isLoading}
             />
             <StatItem
               label="Active Validators"
-              value={formatNumber(stats?.result.activeValidators)}
+              value={formatNumber(stats?.result.activeValidators ?? 0)}
               isLoading={isLoading}
             />
             <StatItem
               label="Delinquent Validators"
-              value={formatNumber(stats?.result.delinquentValidators)}
+              value={formatNumber(stats?.result.delinquentValidators ?? 0)}
               isLoading={isLoading}
             />
           </div>
@@ -45,17 +45,17 @@ export const ValidatorStatsCard = ({ stats, isLoading }: ValidatorStatsCardProps
           <div className="space-y-4">
             <StatItem
               label="Total Active Stake"
-              value={`${formatNumber(stats?.result.totalActiveStake)} SOL`}
+              value={`${formatNumber(stats?.result.totalActiveStake ?? 0)} SOL`}
               isLoading={isLoading}
             />
             <StatItem
               label="Total Delinquent Stake"
-              value={`${formatNumber(stats?.result.totalDelinquentStake)} SOL`}
+              value={`${formatNumber(stats?.result.totalDelinquentStake ?? 0)} SOL`}
               isLoading={isLoading}
             />
             <StatItem
               label="Average Commission"
-              value={formatPercentage(stats?.result.averageCommission)}
+              value={formatPercentage(stats?.result.averageCommission ?? 0)}
               isLoading={isLoading}
             />
           </div>

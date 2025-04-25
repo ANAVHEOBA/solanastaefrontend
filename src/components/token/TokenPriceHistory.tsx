@@ -9,12 +9,53 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { useState } from 'react';
+import { format, subDays, subHours, subMonths, subYears } from 'date-fns';
 
 interface TokenPriceHistoryProps {
   tokenAddress: string;
 }
 
+type TimeRange = '24h' | '7d' | '1m' | '3m' | '1y' | 'all';
+
 export const TokenPriceHistory = ({ tokenAddress }: TokenPriceHistoryProps) => {
+  const [timeRange, setTimeRange] = useState<TimeRange>('7d');
+
+  const getDateRange = (range: TimeRange) => {
+    const now = new Date();
+    let fromDate: Date;
+
+    switch (range) {
+      case '24h':
+        fromDate = subHours(now, 24);
+        break;
+      case '7d':
+        fromDate = subDays(now, 7);
+        break;
+      case '1m':
+        fromDate = subMonths(now, 1);
+        break;
+      case '3m':
+        fromDate = subMonths(now, 3);
+        break;
+      case '1y':
+        fromDate = subYears(now, 1);
+        break;
+      case 'all':
+        fromDate = subYears(now, 5); // Default to 5 years for 'all'
+        break;
+      default:
+        fromDate = subDays(now, 7);
+    }
+
+    return {
+      from_time: format(fromDate, 'yyyyMMdd'),
+      to_time: format(now, 'yyyyMMdd'),
+    };
+  };
+
+  const { from_time, to_time } = getDateRange(timeRange);
+
   const { data: priceHistory, isLoading, error } = useTokenPriceHistory(tokenAddress);
 
   if (isLoading) {
@@ -34,7 +75,7 @@ export const TokenPriceHistory = ({ tokenAddress }: TokenPriceHistoryProps) => {
     );
   }
 
-  if (!priceHistory?.prices || priceHistory.prices.length === 0) {
+  if (!priceHistory?.success || !priceHistory.data?.[0]?.prices || priceHistory.data[0].prices.length === 0) {
     return (
       <div className="text-gray-400">
         No price history available
@@ -43,7 +84,7 @@ export const TokenPriceHistory = ({ tokenAddress }: TokenPriceHistoryProps) => {
   }
 
   // Format the data for the chart
-  const chartData = priceHistory.prices.map((pricePoint) => {
+  const chartData = priceHistory.data[0].prices.map((pricePoint) => {
     // Convert YYYYMMDD to Date object
     const dateStr = pricePoint.date.toString();
     const year = dateStr.substring(0, 4);
@@ -59,7 +100,24 @@ export const TokenPriceHistory = ({ tokenAddress }: TokenPriceHistoryProps) => {
 
   return (
     <div className="bg-slate-800 rounded-lg p-6">
-      <h3 className="text-lg font-semibold text-white mb-4">Price History</h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold text-white">Price History</h3>
+        <div className="flex gap-2">
+          {(['24h', '7d', '1m', '3m', '1y', 'all'] as TimeRange[]).map((range) => (
+            <button
+              key={range}
+              onClick={() => setTimeRange(range)}
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                timeRange === range
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
+              }`}
+            >
+              {range}
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData}>

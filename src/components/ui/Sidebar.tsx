@@ -2,15 +2,18 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { HomeIcon, WalletIcon, ChartBarIcon, XMarkIcon, Bars3Icon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, WalletIcon, ChartBarIcon, XMarkIcon, Bars3Icon, CurrencyDollarIcon, ArrowPathIcon, CubeIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { cn } from '@/lib/utils';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
   { name: 'Wallet Analysis', href: '/dashboard/wallet', icon: WalletIcon },
-  { name: 'Network Stats', href: '/dashboard/network', icon: ChartBarIcon },
+  // { name: 'Network Stats', href: '/dashboard/network', icon: ChartBarIcon },
   { name: 'Token Analysis', href: '/dashboard/token', icon: CurrencyDollarIcon },
+  { name: 'Market Analysis', href: '/dashboard/market', icon: ShoppingCartIcon },
+  { name: 'Transactional Analysis', href: '/dashboard/transactions', icon: ArrowPathIcon },
+  { name: 'Block Analysis', href: '/dashboard/blocks', icon: CubeIcon },
 ];
 
 export const Sidebar = () => {

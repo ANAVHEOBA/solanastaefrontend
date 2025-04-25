@@ -11,6 +11,7 @@ import { LeaderScheduleTable } from '@/components/network/LeaderScheduleTable';
 import { PrioritizationFeesTable } from '@/components/network/PrioritizationFeesTable';
 import { SupplyCard } from '@/components/network/SupplyCard';
 import { InflationCard } from '@/components/network/InflationCard';
+import { StakeMinimumDelegationCard } from '@/components/network/StakeMinimumDelegationCard';
 import { useState, useEffect } from 'react';
 
 export default function DashboardPage() {
@@ -49,10 +50,11 @@ export default function DashboardPage() {
             <NetworkStatsCard stats={networkStats} isLoading={loading} />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <ValidatorStatsCard stats={validatorStats || null} isLoading={loading} />
             <SupplyCard supply={supply || null} isLoading={loading} />
             <InflationCard inflation={inflation || null} isLoading={loading} />
+            <StakeMinimumDelegationCard />
           </div>
           
           <div className="grid grid-cols-1 gap-6">

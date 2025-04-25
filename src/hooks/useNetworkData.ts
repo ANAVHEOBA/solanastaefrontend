@@ -1,8 +1,8 @@
 "use client";
 
 import { useQuery } from '@tanstack/react-query';
-import { NetworkHealth, NetworkStats, ValidatorStats, BlockProduction, ClusterNodesResponse, LeaderSchedule, PrioritizationFees, Supply, Inflation, PerformanceSamplesResponse, AccountFeesResponse, SolscanAccountResponse, SolscanTransactionsResponse, PortfolioResponse, TokenAccountsResponse, TransferResponse, DeFiActivitiesResponse, TokenMetadataResponse, TokenPriceHistoryResponse } from '@/types/network';
-import { fetchBlockProduction, fetchClusterNodes, fetchValidatorStats, fetchLeaderSchedule, fetchPrioritizationFees, fetchSupply, fetchInflation, fetchPerformanceSamples, fetchAccountFees, fetchSolscanAccount, fetchSolscanTransactions, fetchSolscanPortfolio, fetchSolscanTokenAccounts, fetchSolscanTransfers, fetchSolscanDeFiActivities, fetchTokenMetadata, fetchTokenPriceHistory } from '@/services/networkData';
+import { NetworkHealth, NetworkStats, ValidatorStats, BlockProduction, ClusterNodesResponse, LeaderSchedule, PrioritizationFees, Supply, Inflation, PerformanceSamplesResponse, AccountFeesResponse, SolscanAccountResponse, SolscanTransactionsResponse, PortfolioResponse, TokenAccountsResponse, TransferResponse, DeFiActivitiesResponse, TokenMetadataResponse, TokenPriceHistoryResponse, LatestTransactionsResponse, TransactionDetailResponse, TransactionActionsResponse, LatestBlocksResponse, BlockTransactionsResponse, LatestTransaction, LatestBlock, TransactionDetail, TransactionActions, BlockDetailResponse, BlockDetail, MarketListResponse, MarketPool, MarketInfoResponse, MarketInfo, MarketVolumeResponse, MarketVolume, StakeMinimumDelegation } from '@/types/network';
+import { fetchBlockProduction, fetchClusterNodes, fetchValidatorStats, fetchLeaderSchedule, fetchPrioritizationFees, fetchSupply, fetchInflation, fetchPerformanceSamples, fetchAccountFees, fetchSolscanAccount, fetchSolscanTransactions, fetchSolscanPortfolio, fetchSolscanTokenAccounts, fetchSolscanTransfers, fetchSolscanDeFiActivities, fetchTokenMetadata, fetchTokenPriceHistory, fetchTokenHolders, fetchTokenTransfers, fetchTokenDefiActivities, fetchLatestTransactions, fetchTransactionDetail, fetchTransactionActions, fetchLatestBlocks, fetchBlockTransactions, fetchBlockDetail, fetchMarketList, fetchMarketInfo, fetchMarketVolume, fetchStakeMinimumDelegation } from '@/services/networkData';
 import { API_ENDPOINTS } from '@/lib/constants/endpoints';
 
 export const useNetworkData = () => {
@@ -10,54 +10,63 @@ export const useNetworkData = () => {
     queryKey: ['networkHealth'],
     queryFn: () => fetch(API_ENDPOINTS.NETWORK.HEALTH).then(res => res.json()),
     refetchInterval: 300000, // 5 minutes
+    staleTime: 300000, // 5 minutes
   });
 
   const networkStatsQuery = useQuery({
     queryKey: ['networkStats'],
     queryFn: () => fetch(API_ENDPOINTS.NETWORK.STATS).then(res => res.json()),
     refetchInterval: 300000,
+    staleTime: 300000,
   });
 
   const validatorStatsQuery = useQuery({
     queryKey: ['validatorStats'],
     queryFn: fetchValidatorStats,
     refetchInterval: 300000,
+    staleTime: 300000,
   });
 
   const blockProductionQuery = useQuery({
     queryKey: ['blockProduction'],
     queryFn: fetchBlockProduction,
     refetchInterval: 300000,
+    staleTime: 300000,
   });
 
   const clusterNodesQuery = useQuery({
     queryKey: ['clusterNodes'],
     queryFn: fetchClusterNodes,
     refetchInterval: 300000,
+    staleTime: 300000,
   });
 
   const leaderScheduleQuery = useQuery({
     queryKey: ['leaderSchedule'],
     queryFn: () => fetchLeaderSchedule(),
     refetchInterval: 300000,
+    staleTime: 300000,
   });
 
   const prioritizationFeesQuery = useQuery({
     queryKey: ['prioritizationFees'],
     queryFn: () => fetchPrioritizationFees(),
     refetchInterval: 300000,
+    staleTime: 300000,
   });
 
   const supplyQuery = useQuery({
     queryKey: ['supply'],
     queryFn: () => fetchSupply(),
     refetchInterval: 300000,
+    staleTime: 300000,
   });
 
   const inflationQuery = useQuery({
     queryKey: ['inflation'],
     queryFn: fetchInflation,
     refetchInterval: 300000,
+    staleTime: 300000,
   });
 
   return {
@@ -213,10 +222,151 @@ export const useTokenPriceHistory = (address: string) => {
   return useQuery({
     queryKey: ['tokenPriceHistory', address],
     queryFn: () => fetchTokenPriceHistory(address),
+    enabled: !!address,
+    refetchInterval: 60000, // Refetch every minute
+  });
+};
+
+export const useTokenHolders = (
+  address: string,
+  page: number = 1,
+  pageSize: number = 10
+) => {
+  return useQuery({
+    queryKey: ['tokenHolders', address, page, pageSize],
+    queryFn: () => fetchTokenHolders(address, page, pageSize),
+    enabled: !!address,
+    refetchInterval: 300000, // Refetch every 5 minutes
+  });
+};
+
+export const useTokenTransfers = (
+  address: string,
+  page: number = 1,
+  pageSize: number = 10
+) => {
+  return useQuery({
+    queryKey: ['tokenTransfers', address, page, pageSize],
+    queryFn: () => fetchTokenTransfers(address, page, pageSize),
+    enabled: !!address,
+    refetchInterval: 300000, // Refetch every 5 minutes
+  });
+};
+
+export const useTokenDeFiActivities = (
+  address: string,
+  page: number = 1,
+  pageSize: number = 10,
+  sortBy: string = 'block_time',
+  sortOrder: string = 'desc'
+) => {
+  return useQuery({
+    queryKey: ['tokenDeFiActivities', address, page, pageSize, sortBy, sortOrder],
+    queryFn: () => fetchTokenDefiActivities(address, page, pageSize, sortBy, sortOrder),
+    enabled: !!address,
+    refetchInterval: 300000, // Refetch every 5 minutes
+  });
+};
+
+export const useLatestTransactions = (limit: number = 10, filter?: string) => {
+  return useQuery<LatestTransactionsResponse, Error, LatestTransaction[]>({
+    queryKey: ['latestTransactions', limit, filter],
+    queryFn: () => fetchLatestTransactions(limit, filter),
+    refetchInterval: 10000,
+    select: (data) => data.data,
+  });
+};
+
+export const useLatestBlocks = (limit: number = 10) => {
+  return useQuery<LatestBlocksResponse, Error, LatestBlock[]>({
+    queryKey: ['latestBlocks', limit],
+    queryFn: () => fetchLatestBlocks(limit),
+    refetchInterval: 10000,
+    select: (data) => data.data,
+  });
+};
+
+export const useTransactionDetail = (txHash: string) => {
+  return useQuery<TransactionDetailResponse, Error, TransactionDetail>({
+    queryKey: ['transactionDetail', txHash],
+    queryFn: () => fetchTransactionDetail(txHash),
+    enabled: !!txHash,
+    select: (data) => data.data,
+  });
+};
+
+export const useTransactionActions = (txHash: string) => {
+  return useQuery<TransactionActionsResponse, Error, TransactionActions>({
+    queryKey: ['transactionActions', txHash],
+    queryFn: () => fetchTransactionActions(txHash),
+    enabled: !!txHash,
+    select: (data) => data.data,
+  });
+};
+
+export const useBlockTransactions = (blockNumber: number, page: number, pageSize: number) => {
+  return useQuery<BlockTransactionsResponse, Error, BlockTransactionsResponse['data']>({
+    queryKey: ['blockTransactions', blockNumber, page, pageSize],
+    queryFn: () => fetchBlockTransactions(blockNumber, page, pageSize),
+    enabled: !!blockNumber,
+    refetchInterval: 10000,
+    select: (data) => data.data,
+  });
+};
+
+export const useBlockDetail = (blockNumber: number) => {
+  return useQuery<BlockDetailResponse, Error, BlockDetail>({
+    queryKey: ['blockDetail', blockNumber],
+    queryFn: () => fetchBlockDetail(blockNumber),
+    enabled: !!blockNumber,
+    select: (data) => data.data,
+  });
+};
+
+export const useMarketList = (
+  page: number = 1,
+  pageSize: number = 10,
+  sortBy: string = 'created_time',
+  sortOrder: string = 'desc'
+) => {
+  return useQuery<MarketListResponse, Error, MarketPool[]>({
+    queryKey: ['marketList', page, pageSize, sortBy, sortOrder],
+    queryFn: () => fetchMarketList(page, pageSize, sortBy, sortOrder),
+    refetchInterval: 300000, // Refetch every 5 minutes
+    select: (data) => data.data,
+  });
+};
+
+export const useMarketInfo = (address: string) => {
+  return useQuery<MarketInfoResponse, Error, MarketInfo>({
+    queryKey: ['marketInfo', address],
+    queryFn: () => fetchMarketInfo(address),
+    enabled: !!address,
+    refetchInterval: 300000, // Refetch every 5 minutes
+    select: (data) => data.data,
+  });
+};
+
+export const useMarketVolume = (address: string, timeRange: string[]) => {
+  return useQuery<MarketVolumeResponse, Error, MarketVolume>({
+    queryKey: ['marketVolume', address, timeRange],
+    queryFn: () => fetchMarketVolume(address, timeRange),
+    enabled: !!address && timeRange.length > 0,
+    refetchInterval: 300000, // Refetch every 5 minutes
+    select: (data) => data.data,
+  });
+};
+
+export const useStakeMinimumDelegation = () => {
+  return useQuery<StakeMinimumDelegation, Error, number>({
+    queryKey: ['stakeMinimumDelegation'],
+    queryFn: fetchStakeMinimumDelegation,
     refetchInterval: 300000, // 5 minutes
-    select: (data: TokenPriceHistoryResponse) => {
-      if (!data || !data.success) return null;
-      return data.data[0]; // Return the first token price history since we're querying a single address
+    select: (data) => {
+      if (!data?.result?.value) {
+        throw new Error('Invalid stake minimum delegation data');
+      }
+      return data.result.value;
     },
   });
 }; 

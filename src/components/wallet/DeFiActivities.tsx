@@ -62,8 +62,12 @@ export const DeFiActivities = ({ address }: DeFiActivitiesProps) => {
           const date = new Date(activity.time);
           const token1Info = metadata[activity.routers.token1];
           const token2Info = activity.routers.token2 ? metadata[activity.routers.token2] : null;
-          const amount1 = activity.routers.amount1 / Math.pow(10, activity.routers.token1_decimals);
-          const amount2 = activity.routers.amount2 ? activity.routers.amount2 / Math.pow(10, activity.routers.token2_decimals || 0) : null;
+          const amount1 = typeof activity.routers.amount1 === 'number' 
+            ? activity.routers.amount1 / Math.pow(10, activity.routers.token1_decimals)
+            : 0;
+          const amount2 = activity.routers.amount2 && typeof activity.routers.amount2 === 'number'
+            ? activity.routers.amount2 / Math.pow(10, activity.routers.token2_decimals || 0)
+            : null;
 
           // Create a unique key by combining transaction ID, activity type, block time, amount, and index
           const uniqueKey = `${activity.trans_id}-${activity.activity_type}-${activity.block_time}-${amount1}-${amount2 || ''}-${index}`;

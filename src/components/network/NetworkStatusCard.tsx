@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { NetworkHealth } from '@/types/network';
+import { formatTimestamp } from '@/lib/utils/format';
 
 interface NetworkStatusCardProps {
   health: NetworkHealth | null;
@@ -38,7 +39,9 @@ export const NetworkStatusCard = ({ health, isLoading }: NetworkStatusCardProps)
           
           <div className="flex items-center justify-between">
             <span className="text-gray-400">Last Check</span>
-            <span className="text-white">{new Date().toLocaleTimeString()}</span>
+            <span className="text-white">
+              {isLoading ? 'Loading...' : formatTimestamp(Date.now())}
+            </span>
           </div>
         </div>
       </div>

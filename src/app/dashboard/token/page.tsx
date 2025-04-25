@@ -2,6 +2,9 @@
 
 import { TokenAnalysis } from '@/components/token/TokenAnalysis';
 import { TokenPriceHistory } from '@/components/token/TokenPriceHistory';
+import { TokenHolders } from '@/components/token/TokenHolders';
+import { TokenTransfers } from '@/components/token/TokenTransfers';
+import { TokenDeFiActivities } from '@/components/token/TokenDeFiActivities';
 import { useState } from 'react';
 import { useTokenMetadata } from '@/hooks/useNetworkData';
 
@@ -28,7 +31,28 @@ export default function TokenPage() {
             <TokenPriceHistory tokenAddress={tokenAddress} />
           </div>
         )}
+
+        {/* Token Holders Section */}
+        {tokenAddress && !isLoading && tokenMetadata && !error && (
+          <div className="mt-8">
+            <TokenHolders tokenAddress={tokenAddress} />
+          </div>
+        )}
+
+        {/* Token Transfers Section */}
+        {tokenAddress && !isLoading && tokenMetadata && !error && (
+          <div className="mt-8">
+            <TokenTransfers tokenAddress={tokenAddress} />
+          </div>
+        )}
+
+        {/* DeFi Activities Section */}
+        {tokenAddress && !isLoading && tokenMetadata && !error && (
+          <div className="mt-8">
+            <TokenDeFiActivities tokenAddress={tokenAddress} />
+          </div>
+        )}
       </div>
     </div>
   );
-} 
+}

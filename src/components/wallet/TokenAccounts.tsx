@@ -3,6 +3,7 @@
 import { useSolscanTokenAccounts } from '@/hooks/useNetworkData';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
+import { TokenMetadata } from '@/types/network';
 
 interface TokenAccountsProps {
   address: string;
@@ -47,7 +48,7 @@ export const TokenAccounts = ({ address }: TokenAccountsProps) => {
       <h3 className="text-lg font-semibold text-white mb-4">Token Accounts</h3>
       <div className="space-y-4">
         {accounts.map((account) => {
-          const tokenInfo = metadata[account.token_address];
+          const tokenInfo = metadata[account.token_address] as TokenMetadata;
           const balance = account.amount / Math.pow(10, account.token_decimals);
 
           return (

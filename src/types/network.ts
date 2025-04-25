@@ -246,24 +246,24 @@ export interface TokenAccount {
 }
 
 export interface TokenMetadata {
-  address: string;
-  name: string;
-  symbol: string;
-  icon: string;
+  token_address: string;
+  token_name: string;
+  token_symbol: string;
+  token_icon: string;
   decimals: number;
-  holder: number;
-  creator: string;
-  create_tx: string;
-  created_time: number;
-  metadata: any | null;
-  mint_authority: string | null;
-  freeze_authority: string | null;
-  supply: string;
-  price: number;
-  volume_24h: number;
-  market_cap: number;
-  market_cap_rank: number;
-  price_change_24h: number;
+  holder?: number;
+  creator?: string;
+  create_tx?: string;
+  created_time?: number;
+  metadata?: any | null;
+  mint_authority?: string | null;
+  freeze_authority?: string | null;
+  supply?: string;
+  price?: number;
+  volume_24h?: number;
+  market_cap?: number;
+  market_cap_rank?: number;
+  price_change_24h?: number;
 }
 
 export interface TokenMetadataResponse {
@@ -308,10 +308,12 @@ export interface TransferResponse {
 export interface DeFiRouter {
   token1: string;
   token1_decimals: number;
-  amount1: number;
+  amount1: number | string;
   token2?: string;
   token2_decimals?: number;
-  amount2?: number;
+  amount2?: number | string;
+  program_address?: string;
+  pool_address?: string;
   child_routers?: DeFiRouter[];
 }
 
@@ -332,7 +334,12 @@ export interface DeFiActivitiesResponse {
   success: boolean;
   data: DeFiActivity[];
   metadata: {
-    tokens: Record<string, TokenMetadata>;
+    tokens: Record<string, {
+      token_address: string;
+      token_name: string;
+      token_symbol: string;
+      token_icon: string;
+    }>;
   };
 }
 
@@ -348,4 +355,344 @@ export interface TokenPriceHistoryResponse {
   success: boolean;
   data: TokenPriceHistory[];
   metadata: Record<string, unknown>;
+}
+
+export interface TokenPriceHistoryParams {
+  address: string;
+  from_time?: string; // Format: YYYYMMDD
+  to_time?: string;   // Format: YYYYMMDD
+}
+
+export interface TokenHolder {
+  address: string;
+  amount: number;
+  decimals: number;
+  owner: string;
+  rank: number;
+}
+
+export interface TokenHoldersResponse {
+  success: boolean;
+  data: {
+    total: number;
+    items: TokenHolder[];
+  };
+  metadata: Record<string, unknown>;
+}
+
+export interface TokenTransfer {
+  block_id: number;
+  trans_id: string;
+  block_time: number;
+  activity_type: string;
+  from_address: string;
+  from_token_account: string;
+  to_address: string;
+  to_token_account: string;
+  token_address: string;
+  token_decimals: number;
+  amount: number;
+  value: number;
+  time: string;
+}
+
+export interface TokenTransferResponse {
+  success: boolean;
+  data: TokenTransfer[];
+  metadata: {
+    tokens: Record<string, {
+      token_address: string;
+      token_name: string;
+      token_symbol: string;
+      token_icon: string;
+    }>;
+  };
+}
+
+export interface LatestTransaction {
+  fee: number;
+  signer: string[];
+  slot: number;
+  status: string;
+  block_time: number;
+  tx_hash: string;
+  parsed_instructions: Array<{
+    type: string;
+    program: string;
+    program_id: string;
+  }>;
+  program_ids: string[];
+  time: string;
+}
+
+export interface LatestTransactionsResponse {
+  success: boolean;
+  data: LatestTransaction[];
+  metadata: Record<string, unknown>;
+}
+
+export interface TransactionDetail {
+  block_id: number;
+  fee: number;
+  reward: any[];
+  sol_bal_change: Array<{
+    address: string;
+    pre_balance: string;
+    post_balance: string;
+    change_amount: string;
+  }>;
+  token_bal_change: Array<{
+    address: string;
+    change_type: string;
+    change_amount: string;
+    decimals: number;
+    post_balance: string;
+    pre_balance: string;
+    token_address: string;
+    owner: string;
+    post_owner: string;
+    pre_owner: string;
+  }>;
+  tokens_involved: string[];
+  parsed_instructions: Array<{
+    ins_index: number;
+    parsed_type: string;
+    type: string;
+    program_id: string;
+    program: string;
+    outer_program_id: string | null;
+    outer_ins_index: number;
+    data_raw: any;
+    accounts: string[];
+    activities: any[];
+    transfers: any[];
+    inner_instructions: any[];
+    program_invoke_level: number;
+    idl_data?: any;
+  }>;
+  programs_involved: string[];
+  signer: string[];
+  list_signer: string[];
+  status: number;
+  account_keys: Array<{
+    pubkey: string;
+    writable: boolean;
+    signer: boolean;
+    source: string;
+  }>;
+  compute_units_consumed: number;
+  confirmations: null;
+  version: number;
+  priority_fee: number;
+  tx_hash: string;
+  block_time: number;
+  address_table_lookup: any[];
+  log_message: string[];
+  recent_block_hash: string;
+  tx_status: string;
+}
+
+export interface TransactionDetailResponse {
+  success: boolean;
+  data: TransactionDetail;
+  metadata: {
+    tokens: Record<string, {
+      token_address: string;
+      token_name: string;
+      token_symbol: string;
+      token_icon: string;
+    }>;
+  };
+}
+
+export interface TransactionAction {
+  activity_type: string;
+  program_id: string;
+  data: Record<string, any>;
+  ins_index: number;
+  outer_ins_index: number;
+  outer_program_id: string | null;
+}
+
+export interface TransactionTransfer {
+  source_owner: string;
+  source: string;
+  destination: string;
+  destination_owner: string;
+  transfer_type: string;
+  token_address: string;
+  decimals: number;
+  amount_str: string;
+  amount: number;
+  program_id: string;
+  outer_program_id: string;
+  ins_index: number;
+  outer_ins_index: number;
+  base_value?: {
+    token_address: string;
+    decimals: number;
+    amount: number;
+    amount_str: string;
+  };
+}
+
+export interface TransactionSummary {
+  title: {
+    activity_type: string;
+    program_id: string;
+    data: Record<string, any>;
+  };
+  body: TransactionAction[];
+}
+
+export interface TransactionActions {
+  tx_hash: string;
+  block_id: number;
+  block_time: number;
+  time: string;
+  fee: number;
+  summaries: TransactionSummary[];
+  transfers: TransactionTransfer[];
+  activities: TransactionAction[];
+  metadata?: {
+    tokens: Record<string, TokenMetadata>;
+  };
+}
+
+export interface TransactionActionsResponse {
+  success: boolean;
+  data: TransactionActions;
+  metadata: {
+    tokens: Record<string, {
+      token_address: string;
+      token_name: string;
+      token_symbol: string;
+      token_icon: string;
+    }>;
+  };
+}
+
+export interface LatestBlock {
+  blockhash: string;
+  fee_rewards: number;
+  transactions_count: number;
+  current_slot: number;
+  block_height: number;
+  block_time: number;
+  time: string;
+  parent_slot: number;
+  previous_block_hash: string;
+}
+
+export interface LatestBlocksResponse {
+  success: boolean;
+  data: LatestBlock[];
+  metadata: Record<string, unknown>;
+}
+
+export interface BlockTransaction {
+  slot: number;
+  fee: number;
+  status: string;
+  signer: string[];
+  block_time: number;
+  tx_hash: string;
+  program_ids: string[];
+  time: string;
+  parsed_instructions: {
+    type: string;
+    program: string;
+    program_id: string;
+  }[];
+}
+
+export interface BlockTransactionsResponse {
+  success: boolean;
+  data: {
+    total: number;
+    transactions: BlockTransaction[];
+  };
+  metadata: Record<string, unknown>;
+}
+
+export interface BlockDetail {
+  slot: number;
+  blockhash: string;
+  totalMevRewards: string;
+  fee_rewards: number;
+  transactions_count: number;
+  block_height: number;
+  block_time: number;
+  time: string;
+  parent_slot: number;
+  previous_block_hash: string;
+}
+
+export interface BlockDetailResponse {
+  success: boolean;
+  data: BlockDetail;
+  metadata: Record<string, unknown>;
+}
+
+export interface MarketPool {
+  pool_address: string;
+  program_id: string;
+  token1: string;
+  token1_account: string;
+  token2: string;
+  token2_account: string;
+  created_time: number;
+}
+
+export interface MarketListResponse {
+  success: boolean;
+  data: MarketPool[];
+  metadata: Record<string, unknown>;
+}
+
+export interface TokenInfo {
+  token: string;
+  token_account: string;
+  amount: number;
+}
+
+export interface MarketInfo {
+  pool_address: string;
+  program_id: string;
+  tokens_info: TokenInfo[];
+  create_tx_hash: string;
+  create_block_time: number;
+  creator: string;
+}
+
+export interface MarketInfoResponse {
+  success: boolean;
+  data: MarketInfo;
+  metadata: Record<string, unknown>;
+}
+
+export interface MarketVolume {
+  pool_address: string;
+  program_id: string;
+  total_volume_24h: number;
+  total_volume_change_24h: number;
+  total_trades_24h: number;
+  total_trades_change_24h: number;
+}
+
+export interface MarketVolumeResponse {
+  success: boolean;
+  data: MarketVolume;
+  metadata: Record<string, unknown>;
+}
+
+export interface StakeMinimumDelegation {
+  jsonrpc: string;
+  id: string;
+  result: {
+    context: {
+      slot: number;
+    };
+    value: number;
+  };
 } 

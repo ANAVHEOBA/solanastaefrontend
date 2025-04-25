@@ -10,7 +10,7 @@ interface NetworkStatsCardProps {
 }
 
 export const NetworkStatsCard = ({ stats, isLoading }: NetworkStatsCardProps) => {
-  const progress = stats?.result.currentEpochProgress || 0;
+  const progress = stats?.result?.currentEpochProgress ?? 0;
 
   return (
     <motion.div
@@ -27,17 +27,17 @@ export const NetworkStatsCard = ({ stats, isLoading }: NetworkStatsCardProps) =>
           <div className="space-y-4">
             <StatItem
               label="Block Height"
-              value={formatNumber(stats?.result.blockHeight)}
+              value={stats?.result?.blockHeight ? formatNumber(stats.result.blockHeight) : undefined}
               isLoading={isLoading}
             />
             <StatItem
               label="Current Epoch"
-              value={stats?.result.epoch.toString()}
+              value={stats?.result?.epoch?.toString()}
               isLoading={isLoading}
             />
             <StatItem
               label="Transaction Count"
-              value={formatNumber(stats?.result.transactionCount)}
+              value={stats?.result?.transactionCount ? formatNumber(stats.result.transactionCount) : undefined}
               isLoading={isLoading}
             />
           </div>
@@ -45,12 +45,12 @@ export const NetworkStatsCard = ({ stats, isLoading }: NetworkStatsCardProps) =>
           <div className="space-y-4">
             <StatItem
               label="Average Slot Time"
-              value={`${stats?.result.averageSlotTime.toFixed(2)}s`}
+              value={stats?.result?.averageSlotTime ? `${stats.result.averageSlotTime.toFixed(2)}s` : undefined}
               isLoading={isLoading}
             />
             <StatItem
               label="Current Slot Time"
-              value={`${stats?.result.currentSlotTime.toFixed(2)}s`}
+              value={stats?.result?.currentSlotTime ? `${stats.result.currentSlotTime.toFixed(2)}s` : undefined}
               isLoading={isLoading}
             />
             <div className="space-y-2">

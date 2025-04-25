@@ -4,6 +4,7 @@ import { useSolscanTransfers } from '@/hooks/useNetworkData';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
+import { TokenMetadata } from '@/types/network';
 
 interface TransferHistoryProps {
   address: string;
@@ -48,7 +49,7 @@ export const TransferHistory = ({ address }: TransferHistoryProps) => {
       <h3 className="text-lg font-semibold text-white mb-4">Transfer History</h3>
       <div className="space-y-4">
         {transfers.map((transfer) => {
-          const tokenInfo = metadata[transfer.token_address];
+          const tokenInfo = metadata[transfer.token_address] as TokenMetadata;
           const amount = transfer.amount / Math.pow(10, transfer.token_decimals);
           const isIncoming = transfer.flow === 'in';
           const date = new Date(transfer.time);

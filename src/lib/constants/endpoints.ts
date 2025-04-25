@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export const API_ENDPOINTS = {
   NETWORK: {
@@ -14,8 +14,12 @@ export const API_ENDPOINTS = {
     STATS: `${API_BASE_URL}/api/v1/validators/stats`,
     LEADER_SCHEDULE: `${API_BASE_URL}/api/v1/validators/leader-schedule`,
     PRIORITIZATION_FEES: `${API_BASE_URL}/api/v1/validators/prioritization-fees`,
+    STAKE_MINIMUM_DELEGATION: `${API_BASE_URL}/api/v1/validators/stake-minimum-delegation`,
   },
   ACCOUNT: {
+    BALANCE: `${API_BASE_URL}/api/v1/account/balance`,
+    TOKENS: `${API_BASE_URL}/api/v1/account/tokens`,
+    TRANSACTIONS: `${API_BASE_URL}/api/v1/account/transactions`,
     FEES: (address: string) => `${API_BASE_URL}/api/v1/solanafm/account-fees/${address}`,
     SOLSCAN: {
       ACCOUNT: (address: string) => `${API_BASE_URL}/api/v1/solscan/account/${address}`,
@@ -32,7 +36,35 @@ export const API_ENDPOINTS = {
     },
   },
   TOKEN: {
-    METADATA: (address: string) => `${API_BASE_URL}/api/v1/solscan/token/meta/multi?address=${address}`,
+    METADATA: `${API_BASE_URL}/api/v1/token/metadata`,
     PRICE_HISTORY: (address: string) => `${API_BASE_URL}/api/v1/solscan/token/price/multi?address=${address}`,
+    HOLDERS: `${API_BASE_URL}/api/v1/token/holders`,
+    TRANSACTIONS: `${API_BASE_URL}/api/v1/token/transactions`,
+    DEFI_ACTIVITIES: (address: string, page: number = 1, pageSize: number = 10, sortBy: string = 'block_time', sortOrder: string = 'desc') => {
+      return `${API_BASE_URL}/api/v1/solscan/token/defi/activities?address=${address}&page=${page}&page_size=${pageSize}&sort_by=${sortBy}&sort_order=${sortOrder}`;
+    },
   },
-}; 
+  TRANSACTION: {
+    DETAIL: `${API_BASE_URL}/api/v1/transaction/detail`,
+    ACTIONS: `${API_BASE_URL}/api/v1/transaction/actions`,
+    LATEST: `${API_BASE_URL}/api/v1/transaction/latest`,
+    BLOCKS: (limit: number = 10) => {
+      const url = new URL(`${API_BASE_URL}/api/v1/solscan/block/last`);
+      url.searchParams.append('limit', limit.toString());
+      return url.toString();
+    },
+    BLOCK_TRANSACTIONS: `${API_BASE_URL}/api/v1/solscan/block/transactions`,
+  },
+  SOLSCAN: {
+    BLOCK_TRANSACTIONS: `${API_BASE_URL}/api/v1/solscan/block/transactions`,
+    BLOCK_DETAIL: `${API_BASE_URL}/api/v1/solscan/block/detail`,
+    MARKET_LIST: `${API_BASE_URL}/api/v1/solscan/market/list`,
+    MARKET_INFO: (address: string) => `${API_BASE_URL}/api/v1/solscan/market/info?address=${address}`,
+    MARKET_VOLUME: (address: string, timeRange: string[]) => {
+      const url = new URL(`${API_BASE_URL}/api/v1/solscan/market/volume`);
+      url.searchParams.append('address', address);
+      timeRange.forEach(time => url.searchParams.append('time[]', time));
+      return url.toString();
+    },
+  },
+} as const; 
