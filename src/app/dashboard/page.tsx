@@ -17,6 +17,7 @@ import { useState, useEffect } from 'react';
 export default function DashboardPage() {
   const { health, networkStats, validatorStats, clusterNodes, leaderSchedule, prioritizationFees, supply, inflation, loading, error } = useNetworkData();
   const [currentTime, setCurrentTime] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     setCurrentTime(new Date().toLocaleTimeString());
@@ -65,7 +66,8 @@ export default function DashboardPage() {
           {clusterNodes && (
             <ClusterNodesTable 
               nodes={clusterNodes.result.data} 
-              isLoading={loading} 
+              pagination={clusterNodes.result.pagination}
+              onPageChange={setCurrentPage}
             />
           )}
 

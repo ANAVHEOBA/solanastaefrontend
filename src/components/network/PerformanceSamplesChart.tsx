@@ -11,6 +11,7 @@ import {
   Legend,
 } from 'chart.js';
 import { PerformanceSample } from '@/types/network';
+import { useState } from 'react';
 
 ChartJS.register(
   CategoryScale,
@@ -22,8 +23,19 @@ ChartJS.register(
   Legend
 );
 
+const TIME_FRAMES = [
+  { label: '1m', value: '1m' },
+  { label: '5m', value: '5m' },
+  { label: '15m', value: '15m' },
+  { label: '30m', value: '30m' },
+  { label: '1h', value: '1h' },
+  { label: '4h', value: '4h' },
+  { label: '1d', value: '1d' },
+];
+
 export const PerformanceSamplesChart = () => {
-  const { data, isLoading, error } = usePerformanceSamples();
+  const [timeFrame, setTimeFrame] = useState('15m');
+  const { data, isLoading, error } = usePerformanceSamples(1, 100, timeFrame);
 
   if (isLoading) {
     return (
@@ -41,7 +53,7 @@ export const PerformanceSamplesChart = () => {
     );
   }
 
-  if (!data || !Array.isArray(data)) {
+  if (!data?.data || data.data.length === 0) {
     return (
       <div className="bg-slate-900 rounded-xl p-6">
         <div className="text-gray-400">No performance data available</div>
@@ -50,18 +62,18 @@ export const PerformanceSamplesChart = () => {
   }
 
   const chartData = {
-    labels: data.map((sample: PerformanceSample) => new Date(sample.slot * 1000).toLocaleTimeString()),
+    labels: data.data.map((sample: PerformanceSample) => new Date(sample.slot * 1000).toLocaleTimeString()),
     datasets: [
       {
         label: 'Transactions per Second',
-        data: data.map((sample: PerformanceSample) => sample.numTransactions / sample.samplePeriodSecs),
+        data: data.data.map((sample: PerformanceSample) => sample.numTransactions / sample.samplePeriodSecs),
         borderColor: 'rgb(99, 102, 241)',
         backgroundColor: 'rgba(99, 102, 241, 0.5)',
         tension: 0.4,
       },
       {
         label: 'Non-Vote Transactions per Second',
-        data: data.map((sample: PerformanceSample) => sample.numNonVoteTransactions / sample.samplePeriodSecs),
+        data: data.data.map((sample: PerformanceSample) => sample.numNonVoteTransactions / sample.samplePeriodSecs),
         borderColor: 'rgb(236, 72, 153)',
         backgroundColor: 'rgba(236, 72, 153, 0.5)',
         tension: 0.4,
@@ -109,7 +121,25 @@ export const PerformanceSamplesChart = () => {
 
   return (
     <div className="bg-slate-900 rounded-xl p-6">
+      <div className="flex justify-end mb-4">
+        <div className="inline-flex rounded-md shadow-sm" role="group">
+          {TIME_FRAMES.map((tf) => (
+            <button
+              key={tf.value}
+              type="button"
+              onClick={() => setTimeFrame(tf.value)}
+              className={`px-4 py-2 text-sm font-medium rounded-md ${
+                timeFrame === tf.value
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-slate-800 text-gray-300 hover:bg-slate-700'
+              }`}
+            >
+              {tf.label}
+            </button>
+          ))}
+        </div>
+      </div>
       <Line data={chartData} options={options} />
     </div>
   );
-}; 
+};

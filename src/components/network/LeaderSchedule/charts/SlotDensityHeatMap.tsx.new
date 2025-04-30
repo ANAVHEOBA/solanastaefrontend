@@ -94,4 +94,4 @@ export function SlotDensityHeatMap({ data, timeRange }: SlotDensityHeatMapProps)
       </ResponsiveContainer>
     </div>
   );
-}
+} 

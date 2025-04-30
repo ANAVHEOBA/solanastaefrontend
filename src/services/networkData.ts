@@ -88,17 +88,57 @@ export const fetchInflation = async (): Promise<Inflation> => {
   return response.json();
 };
 
-export const fetchPerformanceSamples = async (page: number = 1, limit: number = 10): Promise<PerformanceSamplesResponse> => {
+export const fetchPerformanceSamples = async (page: number = 1, limit: number = 10, timeFrame: string = '15m'): Promise<PerformanceSamplesResponse> => {
   const url = new URL(API_ENDPOINTS.NETWORK.PERFORMANCE_SAMPLES);
   url.searchParams.append('page', page.toString());
   url.searchParams.append('limit', limit.toString());
-  const response = await fetch(url.toString());
+  url.searchParams.append('timeFrame', timeFrame);
+  
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch performance samples data');
+    const response = await fetch(url.toString(), {
+      signal: controller.signal,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+
+    clearTimeout(timeoutId);
+
+    if (response.status === 429) {
+      throw new Error('Rate limit exceeded. Please try again later.');
+    }
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch performance samples data: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data || !data.result) {
+      throw new Error('Invalid response format from server');
+    }
+
+    return {
+      jsonrpc: data.jsonrpc,
+      id: data.id,
+      result: data.result
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        throw new Error('Request timed out. Please try again.');
+      }
+      if (error.message.includes('Failed to fetch')) {
+        throw new Error('Network error. Please check your connection and try again.');
+      }
+      throw error;
+    }
+    throw new Error('An unexpected error occurred');
   }
-
-  return response.json();
 };
 
 export const fetchAccountFees = async (address: string, from: string, to: string): Promise<AccountFeesResponse> => {

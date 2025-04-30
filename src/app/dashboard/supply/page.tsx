@@ -20,8 +20,8 @@ export default function SupplyPage() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Supply Analysis</h1>
       <div className="grid grid-cols-1 gap-6">
-        <SupplyDiagram supply={supply} />
-        <SupplyCard supply={supply} />
+        <SupplyDiagram supply={supply ?? null} />
+        <SupplyCard supply={supply ?? null} isLoading={loading} />
         <NonCirculatingAccounts accounts={supply?.result?.value?.nonCirculatingAccounts || []} />
       </div>
     </div>

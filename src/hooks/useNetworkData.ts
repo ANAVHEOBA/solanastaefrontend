@@ -84,15 +84,36 @@ export const useNetworkData = (page: number = 1, limit: number = 10) => {
   };
 };
 
-export const usePerformanceSamples = (page: number = 1, limit: number = 10) => {
+export const usePerformanceSamples = (page: number = 1, limit: number = 10, timeFrame: string = '15m') => {
   return useQuery({
-    queryKey: ['performanceSamples', page, limit],
-    queryFn: () => fetchPerformanceSamples(page, limit),
-    refetchInterval: 10000, // Refetch every 10 seconds
-    select: (data: PerformanceSamplesResponse) => {
-      if (!data || !data.result) return [];
-      return data.result;
+    queryKey: ['performanceSamples', page, limit, timeFrame],
+    queryFn: () => fetchPerformanceSamples(page, limit, timeFrame),
+    refetchInterval: 30000, // Refetch every 30 seconds
+    retry: (failureCount, error: any) => {
+      // Don't retry on network errors or timeouts
+      if (error?.message?.includes('Network error') || 
+          error?.message?.includes('timed out') ||
+          error?.message?.includes('Rate limit exceeded')) {
+        return false;
+      }
+      // Retry other errors up to 3 times
+      return failureCount < 3;
     },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 30000, // Consider data stale after 30 seconds
+    gcTime: 5 * 60 * 1000, // Keep data in cache for 5 minutes
+    select: (data: PerformanceSamplesResponse) => {
+      const samples = Array.isArray(data.result) ? data.result : [];
+      return {
+        data: samples,
+        pagination: {
+          total: samples.length,
+          page,
+          limit,
+          totalPages: Math.ceil(samples.length / limit)
+        }
+      };
+    }
   });
 };
 

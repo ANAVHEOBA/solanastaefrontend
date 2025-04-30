@@ -7,10 +7,18 @@ import { StakeDistribution } from '@/components/validators/StakeDistribution';
 import { ValidatorPerformance } from '@/components/validators/ValidatorPerformance';
 import { CommissionAnalysis } from '@/components/validators/CommissionAnalysis';
 
+type ValidatorStatus = 'active' | 'inactive' | 'delinquent';
+
+interface ValidatorFilters {
+  status: ValidatorStatus;
+  minStake: number;
+  maxCommission: number;
+}
+
 export default function ValidatorsPage() {
   const [currentPage, setCurrentPage] = useState(1);
-  const [filters, setFilters] = useState({
-    status: 'active' as const,
+  const [filters, setFilters] = useState<ValidatorFilters>({
+    status: 'active',
     minStake: 1000,
     maxCommission: 10
   });
@@ -25,7 +33,7 @@ export default function ValidatorsPage() {
             <div className="flex gap-4">
               <select
                 value={filters.status}
-                onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value as 'active' | 'inactive' | 'delinquent' }))}
+                onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value as ValidatorStatus }))}
                 className="bg-slate-800 text-white rounded-lg px-4 py-2"
               >
                 <option value="active">Active</option>
@@ -67,5 +75,4 @@ export default function ValidatorsPage() {
       </div>
     </div>
   );
-} 
- 
+}

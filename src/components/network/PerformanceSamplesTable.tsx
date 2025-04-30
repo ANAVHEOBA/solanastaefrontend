@@ -14,11 +14,19 @@ interface PerformanceSamplesTableProps {
 }
 
 export function PerformanceSamplesTable({
-  samples,
+  samples = [],
   pagination,
   currentPage,
   onPageChange,
 }: PerformanceSamplesTableProps) {
+  if (!Array.isArray(samples) || samples.length === 0) {
+    return (
+      <div className="mt-8 p-4 text-center text-gray-500">
+        No performance samples available
+      </div>
+    );
+  }
+
   return (
     <div className="mt-8">
       <div className="overflow-x-auto">

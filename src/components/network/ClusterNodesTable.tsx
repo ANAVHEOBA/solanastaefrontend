@@ -5,7 +5,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 interface ClusterNodesTableProps {
   nodes: ClusterNode[];
-  pagination: {
+  pagination?: {
     total: number;
     page: number;
     limit: number;
@@ -28,7 +28,7 @@ export const ClusterNodesTable = ({ nodes, pagination, onPageChange }: ClusterNo
   };
 
   const handlePageChange = (newPage: number) => {
-    if (newPage >= 1 && newPage <= pagination.totalPages) {
+    if (pagination && newPage >= 1 && newPage <= pagination.totalPages) {
       onPageChange(newPage);
     }
   };
@@ -117,30 +117,32 @@ export const ClusterNodesTable = ({ nodes, pagination, onPageChange }: ClusterNo
           </tbody>
         </table>
       </div>
-      <div className="mt-4 flex items-center justify-between">
-        <div className="text-sm text-slate-400">
-          Showing {nodes.length} of {pagination.total} nodes
+      {pagination && (
+        <div className="mt-4 flex items-center justify-between">
+          <div className="text-sm text-slate-400">
+            Showing {nodes.length} of {pagination.total} nodes
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => handlePageChange(pagination.page - 1)}
+              disabled={pagination.page === 1}
+              className="p-2 rounded-md bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ChevronLeftIcon className="h-5 w-5" />
+            </button>
+            <span className="text-sm text-slate-400">
+              Page {pagination.page} of {pagination.totalPages}
+            </span>
+            <button
+              onClick={() => handlePageChange(pagination.page + 1)}
+              disabled={pagination.page === pagination.totalPages}
+              className="p-2 rounded-md bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ChevronRightIcon className="h-5 w-5" />
+            </button>
+          </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => handlePageChange(pagination.page - 1)}
-            disabled={pagination.page === 1}
-            className="p-2 rounded-md bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ChevronLeftIcon className="h-5 w-5" />
-          </button>
-          <span className="text-sm text-slate-400">
-            Page {pagination.page} of {pagination.totalPages}
-          </span>
-          <button
-            onClick={() => handlePageChange(pagination.page + 1)}
-            disabled={pagination.page === pagination.totalPages}
-            className="p-2 rounded-md bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ChevronRightIcon className="h-5 w-5" />
-          </button>
-        </div>
-      </div>
+      )}
     </div>
   );
 }; 

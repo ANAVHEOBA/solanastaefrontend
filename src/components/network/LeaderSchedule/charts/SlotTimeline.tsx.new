@@ -3,51 +3,37 @@
 import { useMemo } from 'react';
 import {
   ResponsiveContainer,
-  ScatterChart,
-  Scatter,
+  LineChart,
+  CartesianGrid,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
-  ZAxis,
+  Line,
 } from 'recharts';
+import { LeaderSchedule } from '@/types/network';
 import { formatNumber } from '@/lib/utils/format';
 
-interface SlotDensityHeatMapProps {
+interface SlotTimelineProps {
   data?: Record<string, number[]>;
   timeRange: [number, number];
 }
 
-export function SlotDensityHeatMap({ data, timeRange }: SlotDensityHeatMapProps) {
+export function SlotTimeline({ data, timeRange }: SlotTimelineProps) {
   const chartData = useMemo(() => {
     if (!data) return [];
 
-    const density: { slot: number; validator: string; density: number }[] = [];
-    const slotCounts: Record<number, number> = {};
+    const timeline: { slot: number; validator: string }[] = [];
+    const [startSlot, endSlot] = timeRange;
 
-    // Count slots in each time interval
-    Object.values(data).forEach(slots => {
-      slots.forEach(slot => {
-        if (slot >= timeRange[0] && slot <= timeRange[1]) {
-          slotCounts[slot] = (slotCounts[slot] || 0) + 1;
-        }
-      });
-    });
-
-    // Create density data
     Object.entries(data).forEach(([validator, slots]) => {
       slots.forEach(slot => {
-        if (slot >= timeRange[0] && slot <= timeRange[1]) {
-          density.push({
-            slot,
-            validator: validator.slice(0, 8) + '...',
-            density: slotCounts[slot],
-          });
+        if (slot >= startSlot && slot <= endSlot) {
+          timeline.push({ slot, validator });
         }
       });
     });
 
-    return density;
+    return timeline.sort((a, b) => a.slot - b.slot);
   }, [data, timeRange]);
 
   if (!chartData.length) {
@@ -61,7 +47,7 @@ export function SlotDensityHeatMap({ data, timeRange }: SlotDensityHeatMapProps)
   return (
     <div className="h-64">
       <ResponsiveContainer width="100%" height="100%">
-        <ScatterChart>
+        <LineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
           <XAxis 
             dataKey="slot" 
@@ -70,11 +56,12 @@ export function SlotDensityHeatMap({ data, timeRange }: SlotDensityHeatMapProps)
             tickFormatter={(value) => formatNumber(value)}
           />
           <YAxis 
-            dataKey="validator" 
             stroke="#ffffff80"
             tick={{ fill: '#ffffff80' }}
+            type="category"
+            dataKey="validator"
+            tickFormatter={(value) => value.slice(0, 8) + '...'}
           />
-          <ZAxis dataKey="density" range={[50, 400]} />
           <Tooltip
             contentStyle={{
               backgroundColor: '#1a1a1a',
@@ -82,16 +69,17 @@ export function SlotDensityHeatMap({ data, timeRange }: SlotDensityHeatMapProps)
               borderRadius: '4px',
             }}
             labelStyle={{ color: '#ffffff' }}
-            formatter={(value: number) => [`Density: ${value}`, '']}
+            formatter={(value: string) => [`Validator: ${value}`, '']}
             labelFormatter={(label) => `Slot: ${formatNumber(label)}`}
           />
-          <Scatter 
-            data={chartData} 
-            fill="#3b82f6"
-            fillOpacity={0.6}
+          <Line 
+            type="monotone" 
+            dataKey="validator" 
+            stroke="#3b82f6"
+            dot={false}
           />
-        </ScatterChart>
+        </LineChart>
       </ResponsiveContainer>
     </div>
   );
-}
+} 
