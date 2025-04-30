@@ -695,4 +695,31 @@ export interface StakeMinimumDelegation {
     };
     value: number;
   };
+}
+
+export interface Validator {
+  activatedStake: number;
+  commission: number;
+  epochCredits: Array<[number, number, number]>;
+  epochVoteAccount: boolean;
+  lastVote: number;
+  nodePubkey: string;
+  rootSlot: number;
+  votePubkey: string;
+  status: 'active' | 'inactive' | 'delinquent';
+}
+
+export interface ValidatorsResponse {
+  jsonrpc: string;
+  id: string;
+  result: {
+    current: Validator[];
+    delinquent: Validator[];
+    pagination: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+  };
 } 

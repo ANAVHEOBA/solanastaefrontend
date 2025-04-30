@@ -1,0 +1,167 @@
+"use client";
+
+import { useMemo } from 'react';
+import {
+  ResponsiveContainer,
+  ScatterChart,
+  Scatter,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ZAxis,
+} from 'recharts';
+import { formatNumber } from '@/lib/utils/format';
+
+interface SlotDensityHeatMapProps {
+  data?: Record<string, number[]>;
+  timeRange: [number, number];
+}
+
+export function SlotDensityHeatMap({ data, timeRange }: SlotDensityHeatMapProps) {
+  const chartData = useMemo(() => {
+    if (!data) return [];
+
+    const density: { slot: number; validator: string; density: number }[] = [];
+    const slotCounts: Record<number, number> = {};
+
+    // Count slots in each time interval
+    Object.values(data).forEach(slots => {
+      slots.forEach(slot => {
+        if (slot >= timeRange[0] && slot <= timeRange[1]) {
+          slotCounts[slot] = (slotCounts[slot] || 0) + 1;
+        }
+      });
+    });
+
+    // Create density data
+    Object.entries(data).forEach(([validator, slots]) => {
+      slots.forEach(slot => {
+        if (slot >= timeRange[0] && slot <= timeRange[1]) {
+          density.push({
+            slot,
+            validator: validator.slice(0, 8) + '...',
+            density: slotCounts[slot],
+          });
+        }
+      });
+    });
+
+    return density;
+  }, [data, timeRange]);
+
+  if (!chartData.length) {
+    return (
+      <div className="h-64 flex items-center justify-center text-gray-500">
+        No data available
+      </div>
+    );
+  }
+
+  return (
+    <ResponsiveContainer width="100%" height={400}>
+      <ScatterChart>
+        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+        <XAxis
+          dataKey="slot"
+          stroke="#9CA3AF"
+          tick={{ fill: '#9CA3AF' }}
+          tickFormatter={(value) => formatNumber(value)}
+          label={{ value: 'Slot', position: 'insideBottom', offset: -5, fill: '#9CA3AF' }}
+        />
+        <YAxis
+          dataKey="validator"
+          stroke="#9CA3AF"
+          tick={{ fill: '#9CA3AF' }}
+          label={{ value: 'Validator', angle: -90, position: 'insideLeft', fill: '#9CA3AF' }}
+        />
+        <ZAxis dataKey="density" range={[50, 400]} />
+        <Tooltip
+          contentStyle={{
+            backgroundColor: '#1F2937',
+            border: '1px solid #374151',
+            borderRadius: '0.375rem',
+          }}
+          labelStyle={{ color: '#9CA3AF' }}
+          formatter={(value: number) => [`Density: ${value}`, '']}
+          labelFormatter={(label) => `Slot: ${formatNumber(label)}`}
+        />
+        <Scatter
+          data={chartData}
+          fill="#3B82F6"
+          fillOpacity={0.6}
+        />
+      </ScatterChart>
+    </ResponsiveContainer>
+  );
+} 
+    <div className="h-64">
+      <ResponsiveContainer width="100%" height="100%">
+        <ScatterChart>
+          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
+          <XAxis 
+            dataKey="slot" 
+            stroke="#ffffff80"
+            tick={{ fill: '#ffffff80' }}
+            tickFormatter={(value) => formatNumber(value)}
+          />
+          <YAxis 
+            dataKey="validator" 
+            stroke="#ffffff80"
+            tick={{ fill: '#ffffff80' }}
+          />
+          <ZAxis dataKey="density" range={[50, 400]} />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: '#1a1a1a',
+              border: '1px solid #ffffff20',
+              borderRadius: '4px',
+            }}
+            labelStyle={{ color: '#ffffff' }}
+            formatter={(value: number) => [`Density: ${value}`, '']}
+            labelFormatter={(label) => `Slot: ${formatNumber(label)}`}
+          />
+          <Scatter 
+            data={chartData} 
+            fill="#3b82f6"
+            fillOpacity={0.6}
+          />
+        </ScatterChart>
+      </ResponsiveContainer>
+    </div>
+  );
+    <div className="h-64">
+      <ResponsiveContainer width="100%" height="100%">
+        <ScatterChart>
+          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
+          <XAxis 
+            dataKey="slot" 
+            stroke="#ffffff80"
+            tick={{ fill: '#ffffff80' }}
+            tickFormatter={(value) => formatNumber(value)}
+          />
+          <YAxis 
+            dataKey="validator" 
+            stroke="#ffffff80"
+            tick={{ fill: '#ffffff80' }}
+          />
+          <ZAxis dataKey="density" range={[50, 400]} />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: '#1a1a1a',
+              border: '1px solid #ffffff20',
+              borderRadius: '4px',
+            }}
+            labelStyle={{ color: '#ffffff' }}
+            formatter={(value: number) => [`Density: ${value}`, '']}
+            labelFormatter={(label) => `Slot: ${formatNumber(label)}`}
+          />
+          <Scatter 
+            data={chartData} 
+            fill="#3b82f6"
+            fillOpacity={0.6}
+          />
+        </ScatterChart>
+      </ResponsiveContainer>
+    </div>
+  );

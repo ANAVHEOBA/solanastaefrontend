@@ -1,4 +1,4 @@
-import { BlockProduction, ClusterNodesResponse, ValidatorStats, LeaderSchedule, PrioritizationFees, Supply, Inflation, PerformanceSamplesResponse, AccountFeesResponse, SolscanAccountResponse, SolscanTransactionsResponse, PortfolioResponse, TokenAccountsResponse, TransferResponse, DeFiActivitiesResponse, TokenMetadataResponse, TokenPriceHistoryResponse, TokenHoldersResponse, TokenTransferResponse, LatestTransactionsResponse, TransactionDetailResponse, TransactionActionsResponse, LatestBlocksResponse, BlockTransactionsResponse, BlockDetailResponse, MarketListResponse, MarketInfoResponse, MarketVolumeResponse, StakeMinimumDelegation } from '../types/network';
+import { BlockProduction, ClusterNodesResponse, ValidatorStats, LeaderSchedule, PrioritizationFees, Supply, Inflation, PerformanceSamplesResponse, AccountFeesResponse, SolscanAccountResponse, SolscanTransactionsResponse, PortfolioResponse, TokenAccountsResponse, TransferResponse, DeFiActivitiesResponse, TokenMetadataResponse, TokenPriceHistoryResponse, TokenHoldersResponse, TokenTransferResponse, LatestTransactionsResponse, TransactionDetailResponse, TransactionActionsResponse, LatestBlocksResponse, BlockTransactionsResponse, BlockDetailResponse, MarketListResponse, MarketInfoResponse, MarketVolumeResponse, StakeMinimumDelegation, ValidatorsResponse } from '../types/network';
 import { API_ENDPOINTS, API_BASE_URL } from '../lib/constants/endpoints';
 
 export const fetchBlockProduction = async (): Promise<BlockProduction> => {
@@ -11,8 +11,17 @@ export const fetchBlockProduction = async (): Promise<BlockProduction> => {
   return response.json();
 };
 
-export const fetchClusterNodes = async (): Promise<ClusterNodesResponse> => {
-  const response = await fetch(API_ENDPOINTS.NETWORK.CLUSTER_NODES);
+export const fetchClusterNodes = async (page: number = 1, limit: number = 10): Promise<ClusterNodesResponse> => {
+  const url = new URL(API_ENDPOINTS.NETWORK.CLUSTER_NODES);
+  url.searchParams.append('page', page.toString());
+  url.searchParams.append('limit', limit.toString());
+  
+  const response = await fetch(url.toString(), {
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+  });
 
   if (!response.ok) {
     throw new Error('Failed to fetch cluster nodes data');
@@ -443,6 +452,24 @@ export const fetchStakeMinimumDelegation = async (): Promise<StakeMinimumDelegat
 
   if (!response.ok) {
     throw new Error('Failed to fetch stake minimum delegation');
+  }
+
+  return response.json();
+};
+
+export const fetchValidators = async (
+  page: number = 1, 
+  limit: number = 10,
+  filters?: {
+    status?: 'active' | 'inactive' | 'delinquent';
+    minStake?: number;
+    maxCommission?: number;
+  }
+): Promise<ValidatorsResponse> => {
+  const response = await fetch(API_ENDPOINTS.VALIDATORS.LIST(page, limit, filters));
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch validators data');
   }
 
   return response.json();

@@ -2,14 +2,18 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { HomeIcon, WalletIcon, ChartBarIcon, XMarkIcon, Bars3Icon, CurrencyDollarIcon, ArrowPathIcon, CubeIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, WalletIcon, ChartBarIcon, XMarkIcon, Bars3Icon, CurrencyDollarIcon, ArrowPathIcon, CubeIcon, ShoppingCartIcon, UserGroupIcon, ClockIcon, BanknotesIcon, ServerIcon, ChartPieIcon } from '@heroicons/react/24/outline';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { cn } from '@/lib/utils';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
   { name: 'Wallet Analysis', href: '/dashboard/wallet', icon: WalletIcon },
-  // { name: 'Network Stats', href: '/dashboard/network', icon: ChartBarIcon },
+  { name: 'Validators', href: '/dashboard/validators', icon: UserGroupIcon },
+  { name: 'Leader Schedule', href: '/dashboard/leader-schedule', icon: ClockIcon },
+  { name: 'Supply', href: '/dashboard/supply', icon: BanknotesIcon },
+  { name: 'Cluster Nodes', href: '/dashboard/cluster-nodes', icon: ServerIcon },
+  { name: 'Performance Samples', href: '/dashboard/performance-samples', icon: ChartPieIcon },
   { name: 'Token Analysis', href: '/dashboard/token', icon: CurrencyDollarIcon },
   { name: 'Market Analysis', href: '/dashboard/market', icon: ShoppingCartIcon },
   { name: 'Transactional Analysis', href: '/dashboard/transactions', icon: ArrowPathIcon },

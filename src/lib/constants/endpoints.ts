@@ -15,6 +15,19 @@ export const API_ENDPOINTS = {
     LEADER_SCHEDULE: `${API_BASE_URL}/api/v1/validators/leader-schedule`,
     PRIORITIZATION_FEES: `${API_BASE_URL}/api/v1/validators/prioritization-fees`,
     STAKE_MINIMUM_DELEGATION: `${API_BASE_URL}/api/v1/validators/stake-minimum-delegation`,
+    LIST: (page: number = 1, limit: number = 10, filters?: { 
+      status?: 'active' | 'inactive' | 'delinquent';
+      minStake?: number;
+      maxCommission?: number;
+    }) => {
+      const url = new URL(`${API_BASE_URL}/api/v1/validators`);
+      url.searchParams.append('page', page.toString());
+      url.searchParams.append('limit', limit.toString());
+      if (filters?.status) url.searchParams.append('status', filters.status);
+      if (filters?.minStake) url.searchParams.append('minStake', filters.minStake.toString());
+      if (filters?.maxCommission) url.searchParams.append('maxCommission', filters.maxCommission.toString());
+      return url.toString();
+    },
   },
   ACCOUNT: {
     BALANCE: `${API_BASE_URL}/api/v1/account/balance`,

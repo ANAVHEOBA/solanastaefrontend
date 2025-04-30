@@ -1,11 +1,11 @@
 "use client";
 
 import { useQuery } from '@tanstack/react-query';
-import { NetworkHealth, NetworkStats, ValidatorStats, BlockProduction, ClusterNodesResponse, LeaderSchedule, PrioritizationFees, Supply, Inflation, PerformanceSamplesResponse, AccountFeesResponse, SolscanAccountResponse, SolscanTransactionsResponse, PortfolioResponse, TokenAccountsResponse, TransferResponse, DeFiActivitiesResponse, TokenMetadataResponse, TokenPriceHistoryResponse, LatestTransactionsResponse, TransactionDetailResponse, TransactionActionsResponse, LatestBlocksResponse, BlockTransactionsResponse, LatestTransaction, LatestBlock, TransactionDetail, TransactionActions, BlockDetailResponse, BlockDetail, MarketListResponse, MarketPool, MarketInfoResponse, MarketInfo, MarketVolumeResponse, MarketVolume, StakeMinimumDelegation } from '@/types/network';
-import { fetchBlockProduction, fetchClusterNodes, fetchValidatorStats, fetchLeaderSchedule, fetchPrioritizationFees, fetchSupply, fetchInflation, fetchPerformanceSamples, fetchAccountFees, fetchSolscanAccount, fetchSolscanTransactions, fetchSolscanPortfolio, fetchSolscanTokenAccounts, fetchSolscanTransfers, fetchSolscanDeFiActivities, fetchTokenMetadata, fetchTokenPriceHistory, fetchTokenHolders, fetchTokenTransfers, fetchTokenDefiActivities, fetchLatestTransactions, fetchTransactionDetail, fetchTransactionActions, fetchLatestBlocks, fetchBlockTransactions, fetchBlockDetail, fetchMarketList, fetchMarketInfo, fetchMarketVolume, fetchStakeMinimumDelegation } from '@/services/networkData';
+import { NetworkHealth, NetworkStats, ValidatorStats, BlockProduction, ClusterNodesResponse, LeaderSchedule, PrioritizationFees, Supply, Inflation, PerformanceSamplesResponse, AccountFeesResponse, SolscanAccountResponse, SolscanTransactionsResponse, PortfolioResponse, TokenAccountsResponse, TransferResponse, DeFiActivitiesResponse, TokenMetadataResponse, TokenPriceHistoryResponse, LatestTransactionsResponse, TransactionDetailResponse, TransactionActionsResponse, LatestBlocksResponse, BlockTransactionsResponse, LatestTransaction, LatestBlock, TransactionDetail, TransactionActions, BlockDetailResponse, BlockDetail, MarketListResponse, MarketPool, MarketInfoResponse, MarketInfo, MarketVolumeResponse, MarketVolume, StakeMinimumDelegation, ValidatorsResponse, Validator } from '@/types/network';
+import { fetchBlockProduction, fetchClusterNodes, fetchValidatorStats, fetchLeaderSchedule, fetchPrioritizationFees, fetchSupply, fetchInflation, fetchPerformanceSamples, fetchAccountFees, fetchSolscanAccount, fetchSolscanTransactions, fetchSolscanPortfolio, fetchSolscanTokenAccounts, fetchSolscanTransfers, fetchSolscanDeFiActivities, fetchTokenMetadata, fetchTokenPriceHistory, fetchTokenHolders, fetchTokenTransfers, fetchTokenDefiActivities, fetchLatestTransactions, fetchTransactionDetail, fetchTransactionActions, fetchLatestBlocks, fetchBlockTransactions, fetchBlockDetail, fetchMarketList, fetchMarketInfo, fetchMarketVolume, fetchStakeMinimumDelegation, fetchValidators } from '@/services/networkData';
 import { API_ENDPOINTS } from '@/lib/constants/endpoints';
 
-export const useNetworkData = () => {
+export const useNetworkData = (page: number = 1, limit: number = 10) => {
   const healthQuery = useQuery({
     queryKey: ['networkHealth'],
     queryFn: () => fetch(API_ENDPOINTS.NETWORK.HEALTH).then(res => res.json()),
@@ -35,8 +35,8 @@ export const useNetworkData = () => {
   });
 
   const clusterNodesQuery = useQuery({
-    queryKey: ['clusterNodes'],
-    queryFn: fetchClusterNodes,
+    queryKey: ['clusterNodes', page, limit],
+    queryFn: () => fetchClusterNodes(page, limit),
     refetchInterval: 300000,
     staleTime: 300000,
   });
@@ -369,4 +369,38 @@ export const useStakeMinimumDelegation = () => {
       return data.result.value;
     },
   });
+};
+
+export const useValidators = (
+  page: number = 1, 
+  limit: number = 10,
+  filters?: {
+    status?: 'active' | 'inactive' | 'delinquent';
+    minStake?: number;
+    maxCommission?: number;
+  }
+) => {
+  return useQuery<ValidatorsResponse, Error, { current: Validator[]; delinquent: Validator[]; pagination: ValidatorsResponse['result']['pagination'] }>({
+    queryKey: ['validators', page, limit, filters],
+    queryFn: () => fetchValidators(page, limit, filters),
+    refetchInterval: 300000, // 5 minutes
+    select: (data) => ({
+      current: data.result.current,
+      delinquent: data.result.delinquent,
+      pagination: data.result.pagination,
+    }),
+  });
+};
+
+export const useLeaderSchedule = (page: number = 1, limit: number = 10) => {
+  return useQuery<LeaderSchedule, Error, { data: Record<string, number[]>; pagination: LeaderSchedule['result']['pagination'] }>({
+    queryKey: ['leaderSchedule', page, limit],
+    queryFn: () => fetchLeaderSchedule(page, limit),
+    refetchInterval: 300000, // 5 minutes
+    select: (data) => ({
+      data: data.result.data,
+      pagination: data.result.pagination,
+    }),
+  });
 }; 
+   
